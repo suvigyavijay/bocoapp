@@ -1,0 +1,200 @@
+<html>
+<head>
+  <title>Controls Data Center | DVM</title>
+  <link rel="icon" type="image/png" href="../img/favicon.ico">
+  <link rel="stylesheet" href="../css/materialize.css">
+  <script src="https://www.gstatic.com/firebasejs/3.3.2/firebase.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="../js/materialize.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Department Of Visual Media, BITS Pilani">
+  <meta name="Description" content="Update App Data directly via this web app.">
+  <style>
+    body{
+      overflow-x: hidden;
+      background: url('../img/bg.jpg');
+      background-repeat: repeat;
+    }
+    .footer {
+      width: 100vw;
+      padding-top: 0!important;
+      margin-bottom: 0;
+      color: white;
+    }
+  </style>
+  <script type="text/javascript">
+    function getUrlVars()
+    {
+      var vars = [], hash;
+      var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+      for(var i = 0; i < hashes.length; i++)
+      {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+      }
+      return vars;
+    }
+
+    
+    urlvars=getUrlVars();
+    console.log(urlvars);
+  </script>
+  
+  <script type="text/javascript">
+    var htmlstring='';
+      // Your Client ID can be retrieved from your project in the Google
+      // Developer Console, https://console.developers.google.com
+      var CLIENT_ID = '538516269599-qvj98ugrpo3a3vieo5u2tr4atv3r8c2d.apps.googleusercontent.com';
+
+      var SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/userinfo.email'];
+
+      /**
+       * Check if current user has authorized this application.
+       */
+       function checkAuth() {
+        gapi.auth.authorize(
+        {
+          'client_id': CLIENT_ID,
+          'scope': SCOPES.join(' '),
+          'immediate': true
+        }, handleAuthResult);
+      }
+
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+       function handleAuthResult(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          callScriptFunction();
+        } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
+        }
+      }
+
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+       function handleAuthClick(event) {
+        gapi.auth.authorize(
+          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+          handleAuthResult);
+        return false;
+      }
+
+      /**
+       * Calls an Apps Script function to list the folders in the user's
+       * root Drive folder.
+       */
+       function callScriptFunction() {
+       		// document.domain = 'https://content-script.googleapis.com/';
+            // $('iframe').attr('src','');
+
+        // ID of the script to call. Acquire this from the Apps Script editor,
+        // under Publish > Deploy as API executable.
+        var scriptId = "1b2OVR3lg5UFjnl6-yDAK1y6XTZ4U_jh_EuO4frWYM7uGNFvSBZQCF8RL";
+
+        // Initialize parameters for function call.
+        // var sheetId = "Athletics";
+
+        // Create execution request.
+        var request = {
+          'function': 'doPost',
+          'parameters': urlvars[0],
+          'devMode': true   // Optional.
+        };
+
+        // Make the request.
+        var op = gapi.client.request({
+          'root': 'https://script.googleapis.com',
+          'path': 'v1/scripts/' + scriptId + ':run',
+          'method': 'POST',
+          'body': request
+        });
+
+        // Log the results of the request.
+        op.execute(function(resp) {
+          if (resp.error && resp.error.status) {
+            // The API encountered a problem before the script started executing.
+            console.log('Error calling API: ' + JSON.stringify(resp, null, 2));
+          } else if (resp.error) {
+            // The API executed, but the script returned an error.
+            var error = resp.error.details[0];
+            console.log('Script error! Message: ' + error.errorMessage);
+          } else {
+            // Here, the function returns an array of strings.
+            var sheetNames = resp.response.result;
+            console.log('Sheet names in spreadsheet:');
+            console.log(sheetNames);
+            htmlstring=sheetNames;
+            updateData();
+          }
+        });
+      }
+
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth">
+    </script>
+
+    <script type="text/javascript">
+      var checked = 0, email = "suvigyavijay@gmail.com",
+      password = "webdforapp", htmlstring='';
+
+      var config = {
+        apiKey: "AIzaSyBSZILB8JvDhjpUNhvLIXE16_SpwcxKdI8",
+        authDomain: "bosm-1f680.firebaseapp.com",
+        databaseURL: "https://bosm-1f680.firebaseio.com",
+        storageBucket: "bosm-1f680.appspot.com",
+      };
+      firebase.initializeApp(config);
+
+      firebase.auth().signInWithEmailAndPassword(email,password).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+      });
+
+      function updateData () {
+        var database = firebase.database().ref();
+        var key = database.child('Result').child(urlvars[0]);
+        if(htmlstring!="") {
+          key.set(htmlstring);
+          setTimeout(function () {
+            Materialize.toast('Data Update Successful', 3000, 'rounded');
+            htmlstring='';
+            setTimeout(function () {
+            window.close();
+            // console.log('close now');
+            }, 5000)
+          }, 5000)
+        }     
+      }
+
+
+    </script>
+  </head>
+  <body>
+    <a class="modal-trigger" href="#authorize" style="display:none"></a>
+    <div id="authorize" class="modal modal-fixed-footer" style="height:30vh">
+      <div id="authorize-div" class="modal-content">
+        Authorize access to Google Apps Script Execution API
+      </div>
+      <div class="modal-footer">
+        <!--Button for the user to click to initiate auth sequence -->
+        <a id="authorize-button" class="modal-action modal-close waves-effect btn-flat" onclick="handleAuthClick(event)">
+          Authorize
+        </a>
+      </div>
+    </div>
+
+  </body>
+  </html>

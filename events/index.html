@@ -1,0 +1,256 @@
+<html>
+<head>
+	<title>Controls Data Center | DVM</title>
+	<link rel="icon" type="image/png" href="../img/favicon.ico">
+	<link rel="stylesheet" href="../css/materialize.css">
+	<script src="https://www.gstatic.com/firebasejs/3.3.2/firebase.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="../js/materialize.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="Department Of Visual Media, BITS Pilani">
+	<meta name="Description" content="Update App Data directly via this web app.">
+	<style>
+		body{
+			overflow-x: hidden;
+			background: url('../img/bg.jpg');
+			background-repeat: repeat;
+		}
+		.footer {
+			width: 100vw;
+			padding-top: 0!important;
+			margin-bottom: 0;
+			color: white;
+		}
+	</style>
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+			$('.modal-trigger').leanModal({
+				dismissible: false
+			});
+		});
+
+		$(document).ready(function() {
+			$('select').material_select();
+
+
+			$('select').change(function () {
+				$('iframe').attr('src',urlDict[$('select option:selected').attr('value')]);
+				$('#submit').attr('href', 'update.html?'+$('select option:selected').text());
+				console.log(urlDict[$('select option:selected').attr('value')]);
+			});
+
+
+		});
+
+		$('iframe')
+
+
+		var urlDict = {
+          //1.Athletics
+          1:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=0',
+          //2.Badminton
+          2:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1223020050',
+          //3.Basketball
+          3:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1222829793',
+          //4.Snooker
+          4:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1471685600',
+          //5:Chess
+          5:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1365528023',
+          //6:Carrom
+          6:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=52482126',
+          //7:Cricket
+          7:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1084208445',
+          //8:Football
+          8:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=863603109',
+          //9:Hockey
+          9:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=935073893',
+          //10:Squash
+          10:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=8256682',
+          //11:Swimming
+          11:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=290018062',
+          //12:Taekwondo
+          12:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=467846135',
+          //13:Powerlifting
+          13:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=2045240085',
+          //14:Tennis
+          14:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1895865757',
+          //15:Table-Tennis
+          15:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1474889188',
+          //16:Volleyball
+          16:'https://docs.google.com/spreadsheets/d/1fFosjAzYfJRwwBNBJCV2kM5jcfqjJYE0cYoDtX63CUo/edit#gid=1153203197'
+      };
+  </script>
+  
+  <script type="text/javascript">
+  	var htmlstring='';
+      // Your Client ID can be retrieved from your project in the Google
+      // Developer Console, https://console.developers.google.com
+      var CLIENT_ID = '620872436344-tnlsoohgt37bau88jenjdt6rjmtvic41.apps.googleusercontent.com';
+
+      var SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/userinfo.email'];
+
+      /**
+       * Check if current user has authorized this application.
+       */
+       function checkAuth() {
+       	gapi.auth.authorize(
+       	{
+       		'client_id': CLIENT_ID,
+       		'scope': SCOPES.join(' '),
+       		'immediate': true
+       	}, handleAuthResult);
+       }
+
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+       function handleAuthResult(authResult) {
+       	var authorizeDiv = document.getElementById('authorize-div');
+       	if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          // callScriptFunction();
+      } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
+      }
+  }
+
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+       function handleAuthClick(event) {
+       	gapi.auth.authorize(
+       		{client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+       		handleAuthResult);
+       	return false;
+       }
+
+      /**
+       * Calls an Apps Script function to list the folders in the user's
+       * root Drive folder.
+       */
+       function callScriptFunction() {
+       	// document.domain = 'https://content-script.googleapis.com/';
+            // $('iframe').attr('src','');
+
+        // ID of the script to call. Acquire this from the Apps Script editor,
+        // under Publish > Deploy as API executable.
+        var scriptId = "1r6YQSxkAbj5WYAif0EsB-y2-C9JXsobgDr2ebUKUobF2QmgatNW2zAqo";
+
+        // Initialize parameters for function call.
+        // var sheetId = "Athletics";
+
+        // Create execution request.
+        var request = {
+        	'function': 'doPost',
+        	'parameters': $('select option:selected').text(),
+          'devMode': true   // Optional.
+      };
+
+        // Make the request.
+        var op = gapi.client.request({
+        	'root': 'https://script.googleapis.com',
+        	'path': 'v1/scripts/' + scriptId + ':run',
+        	'method': 'POST',
+        	'body': request
+        });
+
+        // Log the results of the request.
+        op.execute(function(resp) {
+        	if (resp.error && resp.error.status) {
+            // The API encountered a problem before the script started executing.
+            console.log('Error calling API: ' + JSON.stringify(resp, null, 2));
+        } else if (resp.error) {
+            // The API executed, but the script returned an error.
+            var error = resp.error.details[0];
+            console.log('Script error! Message: ' + error.errorMessage);
+        } else {
+            // Here, the function returns an array of strings.
+            var sheetNames = resp.response.result;
+            console.log('Sheet names in spreadsheet:');
+            console.log(sheetNames);
+            htmlstring=sheetNames;
+        }
+    });
+    }
+
+</script>
+<script src="https://apis.google.com/js/client.js?onload=checkAuth">
+</script>
+
+<script type="text/javascript">
+
+
+
+</script>
+</head>
+<body>
+	<a class="modal-trigger" href="#authorize" style="display:none"></a>
+	<div id="authorize" class="modal modal-fixed-footer" style="height:30vh">
+		<div id="authorize-div" class="modal-content">
+			Authorize access to Google Apps Script Execution API
+		</div>
+		<div class="modal-footer">
+			<!--Button for the user to click to initiate auth sequence -->
+			<a id="authorize-button" class="modal-action modal-close waves-effect btn-flat" onclick="handleAuthClick(event)">
+				Authorize
+			</a>
+		</div>
+	</div>
+	<nav>
+		<div class="nav-wrapper">
+			<div class="container">
+				<div class="brand-logo"><b>DVM</b></div>
+				<div class="right" style="font-size:1.5em">BOSM Controls Data Center</div>
+			</div>
+		</div>
+	</nav>
+	<br>
+	<div class="container">
+		<div class="row">
+			<div class="col s12">
+				<div class="input-field col s12">
+					<select>
+						<option value="" disabled selected>Choose your option</option>
+						<option value="1">Athletics</option>
+						<option value="2">Badminton</option>
+						<option value="3">Basketball</option>
+						<option value="5">Chess</option>
+						<option value="6">Carrom</option>
+						<option value="7">Cricket</option>
+						<option value="8">Football</option>
+						<option value="9">Hockey</option>
+						<option value="13">Powerlifting</option>
+						<option value="4">Snooker</option>
+						<option value="10">Squash</option>
+						<option value="11">Swimming</option>
+						<option value="12">Taekwondo</option>
+						<option value="14">Tennis</option>
+						<option value="15">Table-Tennis</option>
+						<option value="16">Volleyball</option>
+					</select>
+					<label>Data Sheet</label>
+				</div>
+			</div>
+		</div>
+		<div class="row" id="result">
+			<iframe src="" style="height:60vh" class="col s12"></iframe>
+		</div>
+		<div class="row">
+			<a class="btn waves-effect waves-light right" id="submit" href="" onclick="console.log($('iframe').attr('src'))" target="_blank">Submit</a>
+		</div>
+	</div>
+	<div class="row amber accent-4 footer">
+		<div class="container">
+			Developed at DVM, BITS Pilani
+		</div>
+	</div>
+</body>
+</html>
